@@ -1,0 +1,44 @@
+Q1.All components of Hadoop 1.x.
+A.1.
+HDFS in Hadoop 1.x mainly has 3 daemons which are Name Node, Secondary Name Node and Data Node.
+Name Node
+1.There is only single instance of this process runs on a cluster and that is on a master node
+2.It is responsible for manage metadata about files distributed across the cluster.
+3.It manages information like location of file blocks across cluster and it’s permission.
+4.This process reads all the metadata from a file named fsimage and keeps it in memory.
+5.After this process is started, it updates metadata for newly added or removed files in RAM.
+6.It periodically writes the changes in one file called edits as edit logs.
+7.This process is a heart of HDFS, if it is down HDFS is not accessible any more.
+
+2.Secondary Name Node
+1.For this also, only single instance of this process runs on a cluster.
+2.This process can run on a master node (for smaller clusters) or can run on a separate node (in larger clusters)
+depends on the size of the cluster.
+3.One misinterpretation from name is “This is a backup Name Node” but IT IS NOT.
+4.It manages the metadata for the Name Node. In the sense, it reads the information written in edit logs (by Name Node) and creates an updated file of current cluster metadata
+5.Than it transfers that file back to Name Node so that fsimage file can be updated.
+6.So, whenever Name Node daemon is restarted it can always find updated information in fsimage file.
+
+3.Data Node.
+1.There are many instances of this process running on various slave nodes(referred as Data nodes).
+2.It is responsible for storing the individual file blocks on the slave nodes in Hadoop cluster.
+3.Based on the replication factor, a single block is replicated in multiple slave nodes(only if replication factor is > 1) 
+to prevent the data loss.
+4.Whenever required, this process handles the access to a data block by communicating with Name Node.
+5.This process periodically sends heart bits to Name Node to make Name Node aware that slave process is running.
+
+ Hadoop MapReduce algorithm basically has two phases Map and Reduce
+ 
+1. Job Tracker
+1.Only one instance of this process runs on a master node same as Name Node.
+2.Any MapReduce job is submitted to Job Tracker first.
+3.Job Tracker checks for the location various file blocks used in MapReduce processing.
+4.Than it initiates the separate tasks on various Data Nodes(where blocks are present) by communicating with Task Tracker Daemons.
+
+2.Task Tracker
+1.This process has multiple instances running on the slave nodes(typically runs on the slave nodes where
+Data Node process is running).
+2.It receives the job information from Job Tracker daemon and initiates a task on that slave node.
+3.In most of the cases, Task Tracker initiates the task on the same node where there physical data block is present.
+4.Same as Data Node daemon, this process also periodically sends heart bits to Job Tracker to make Job Tracker aware that slave
+process is running.
